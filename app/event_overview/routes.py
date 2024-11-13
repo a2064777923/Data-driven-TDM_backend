@@ -3,9 +3,7 @@ import re
 from datetime import datetime
 
 import pandas as pd
-from aiohttp.web_routedef import route
 from flask import jsonify
-from socks import method
 
 from app import db
 from app.event_overview import event_bp
