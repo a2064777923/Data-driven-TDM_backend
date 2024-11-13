@@ -1,6 +1,13 @@
-from flask import jsonify
+import json
+
+from flask import jsonify, request
 import random
+
+from sqlalchemy import false
+
+from app import db
 from app.map_business import map_bp
+from app.models import HotelDetailWithPrice
 
 
 def generate_data_list(count, max_value):
@@ -40,3 +47,38 @@ def center_map():
             }
         }
     return jsonify(response_data)
+
+@map_bp.route('/getHotelMapDetail', methods=['GET'])
+def get_hotel_map_detail():
+    hotel_result={"data":{},"success":True}
+    hotelName = request.args.get('hotelName')
+    hotels_detail = HotelDetailWithPrice.query.filter_by(name = hotelName).first()
+    if hotels_detail.details_URL == "nan":
+        hotel_result["success"] = False
+        return jsonify(hotel_result)
+    else:
+        hotelData = None
+        try:
+            hotelDetail ={"fullName": hotels_detail.full_Name,
+                          "description":hotels_detail.description,
+                          "score":hotels_detail.score,
+                          "reviews":hotels_detail.reviews,
+                          "reviewCount": hotels_detail.review_count,
+                          "hotelURL": hotels_detail.details_URL,
+                          "prices":hotels_detail.prices,
+                          "sameStandandPriceLastYearThisMonth": 1902.5,
+                          "averagePriceLastYearThisMonth":894.3,
+                          "sameStandandPriceOverHistory":991.4,
+                          }
+            with open('./data/hotel_reviews_adjective.json', 'r', encoding='utf-8') as file:
+                adjective_data = json.load(file)
+            with open('./data/hotel_reviews_noun.json', 'r', encoding='utf-8') as file:
+                noun_data = json.load(file)
+            hotelData = {"hotelDetail":hotelDetail, "hotelReviews":{"hotelName":hotelName,"adjectives":adjective_data[hotelName],"nouns":noun_data[hotelName]}}
+            hotel_result["data"] = hotelData
+        except (NotADirectoryError, KeyError) as e:
+            print("can't find file")
+            hotel_result["success"] = False
+            return jsonify(hotel_result)
+    return jsonify({"data":hotelData,"success":True})
+

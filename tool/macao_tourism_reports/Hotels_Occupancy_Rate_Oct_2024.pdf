@@ -1,0 +1,462 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>澳門旅遊數據+</title>
+	
+	<!-- JQuery -->
+	<script type="text/javascript" src="javascripts/jquery.min.js"></script>
+	<!-- BlockUI -->
+	<script type="text/javascript" src="javascripts/jquery.blockUI.js"></script>
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="libs/bootstrap/css/bootstrap.min.css"/>
+	<link rel="stylesheet" href="libs/bootstrap/css/bootstrap-theme.min.css"/>
+	<script src="libs/bootstrap/js/bootstrap.min.js"></script>
+	<!-- Bootstrap3 Dialog -->
+	<link rel="stylesheet" href="libs/bootstrap3-dialog/dist/css/bootstrap-dialog.min.css"/>
+	<script src="libs/bootstrap3-dialog/dist/js/bootstrap-dialog.min.js"></script>
+	<!-- Bootstrap-Validator -->
+	<script src="libs/bootstrap-validator/validator.min.js"></script>
+	<!-- Font-awesome -->
+	<link rel="stylesheet" href="libs/font-awesome/css/font-awesome.min.css"/>
+	<!-- Modernizr -->
+	<script src="javascripts/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+	<!-- Sroll -->
+	<script src="javascripts/jquery.sroll.js"></script>
+	<!-- Style -->
+	<link rel="stylesheet" href="css/home.style.css">
+	<!--Facicon-->
+	<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+	
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$(document).on('click', '.link-block', function(){
+			var __url = $(this).data('url');
+			if (__url !== '' && __url !== '-') {
+				//window.open(__url, '_blank');
+				$.blockUI({ message: '<span class= "BlockUI-MsgBox">載入中, 請等待 ...</span>' });
+				window.location.href = __url;
+			}
+			else if (__url === '-') {
+				return false;
+			}
+			else {
+				BootstrapDialog.show({
+					title: 'Message',
+					message: 'Coming Soon ...'
+				});
+				return false;
+			}
+		});
+		
+		/* Footer Button Event */
+		$(document).on('click', '.FooterBtn', function(event){
+			var __url = $(this).attr('href');
+			
+			if (__url !== '#') {
+				return true;
+			}
+			else {
+				event.preventDefault();
+				
+				var __content = $(this).data('content');
+				
+				var dialog = new BootstrapDialog({
+				//BootstrapDialog.show({
+					title: $(this).html(),
+					size: 'size-wide',
+					nl2br: $(this).data('nl2br'),
+					//message: $('#Footer span.' + __content).html()
+					message: $('span.' + __content).html(),
+					onshown: function(dialogRef){
+						$('div.bootstrap-dialog-message form.form-horizontal button.FormSelectAllBtn').on('click', function (event) {
+							var __opt_group = $('div.bootstrap-dialog-message form.form-horizontal input[name=SelectSubscriptionOption]')
+							__opt_group.prop('checked', true);
+							__opt_group.trigger('change');
+						});
+						$('div.bootstrap-dialog-message form.form-horizontal button.FormCancelAllBtn').on('click', function (event) {
+							var __opt_group = $('div.bootstrap-dialog-message form.form-horizontal input[name=SelectSubscriptionOption]')
+							__opt_group.prop('checked', false);
+							__opt_group.trigger('change');
+						});
+						$('div.bootstrap-dialog-message form.form-horizontal input[name=SelectSubscriptionOption]').on('change', function (event) {
+							var __tmp = 0;
+							$('div.bootstrap-dialog-message form.form-horizontal input[name=SelectSubscriptionOption]:checked').each(function() {
+								__tmp += $(this).val();
+							});
+							if (__tmp > 0) {
+								$('div.bootstrap-dialog-message form.form-horizontal #SelectSubscriptionOptionVal').prop('checked', true);
+							}
+							else {
+								$('div.bootstrap-dialog-message form.form-horizontal #SelectSubscriptionOptionVal').prop('checked', false);
+							}
+							$('div.bootstrap-dialog-message form.form-horizontal').validator();
+						});
+						$('div.bootstrap-dialog-message form.form-horizontal #CountryOrRegion').on('change', function (event) {
+							$('div.bootstrap-dialog-message form.form-horizontal #CountryOrRegion option[name=CountryOrRegionNull]').remove();
+							$('div.bootstrap-dialog-message form.form-horizontal #CountryOrRegionOptionVal').prop('checked', true);
+							$('div.bootstrap-dialog-message form.form-horizontal').validator();
+						});
+						$('div.bootstrap-dialog-message form.form-horizontal #IndustryType').on('change', function (event) {
+							$('div.bootstrap-dialog-message form.form-horizontal #IndustryType option[name=IndustryTypeNull]').remove();
+							$('div.bootstrap-dialog-message form.form-horizontal #IndustryTypeOptionVal').prop('checked', true);
+							$('div.bootstrap-dialog-message form.form-horizontal').validator();
+						});
+						$('div.bootstrap-dialog-message form.form-horizontal').validator().on('submit', function (event) {
+							if (event.isDefaultPrevented()) {
+								
+							} else {
+								//alert ('act');
+								var __dataObj = new Object();
+								__dataObj.Email = $('div.bootstrap-dialog-message form.form-horizontal #Email').val();
+								//__dataObj.EmailConfirm = $('div.bootstrap-dialog-message form.form-horizontal #EmailConfirm').val();
+								__dataObj.FirstName = $('div.bootstrap-dialog-message form.form-horizontal #FirstName').val();
+								__dataObj.LastName = $('div.bootstrap-dialog-message form.form-horizontal #LastName').val();
+								__dataObj.Organization = $('div.bootstrap-dialog-message form.form-horizontal #Organization').val();
+								__dataObj.IndustryType = $('div.bootstrap-dialog-message form.form-horizontal #IndustryType').val();
+								__dataObj.CountryOrRegion = $('div.bootstrap-dialog-message form.form-horizontal #CountryOrRegion option:selected').val();
+								__dataObj.SubscriptionLanguage = $('div.bootstrap-dialog-message form.form-horizontal #SubscriptionLanguage option:selected').val();
+								var __tmp = new Array();
+								$('div.bootstrap-dialog-message form.form-horizontal input[name=SelectSubscriptionOption]:checked').each(function() {
+									__tmp.push($(this).val());
+								});
+								__dataObj.SelectSubscriptionOption = __tmp.join(',');
+								
+								var __postData = JSON.stringify(__dataObj);
+								//alert (__postData);
+								
+								//return false;
+								
+								$.ajax({
+									type: 'json',
+									dataType: 'json',
+									contentType: 'application/json; charset=utf-8',
+									url: '/Subscription/Subscript',
+									data: __postData,
+									success: function(data) {
+										//alert (data.Message);
+										BootstrapDialog.show({
+											title: '',
+											message: data.Message
+										});
+										if (data.Success === true) {
+											dialog.close();
+										}
+									}
+								});
+								
+								return false;
+							}
+						});
+					}
+				});
+				dialog.open();
+			}
+		});
+		
+		/* Scrolling */
+		/*
+		$('.scrollBox:first').scroll({
+			speed: 'slow',
+			delay: 8000
+		});
+		$(document).on('click', '.scrollBox li.Subscription', function(event){
+			$('#header li a.FooterBtn').trigger('click');
+		});
+		*/
+	});
+	</script>
+	
+	<!-- Google Analytics -->
+	    <!-- Google tag (gtag.js) --> 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZB5WGG3ZS1"></script> 
+    <script> 
+    window.dataLayer = window.dataLayer || []; 
+    function gtag(){dataLayer.push(arguments);} 
+    gtag('js', new Date());
+
+    gtag('config', 'G-ZB5WGG3ZS1'); 
+    </script></head>
+
+<body>
+	<!-- Hearer -->
+	<div id='header'>
+		<ul class='language'>
+						<li><a class='FooterBtn btn btn-primary' data-content='SubscriptionContent' data-nl2br='false' href='#'><i class="fa fa-envelope-o" aria-hidden="true"></i> 訂閱</a></li>
+			<li><a href='/Language?lang=T&url=%2F'>繁體中文</a></li>
+			<li><a href='/Language?lang=S&url=%2F'>简体中文</a></li>
+			<li><a href='/Language?lang=E&url=%2F'>English</a></li>
+			<li><a href='/Language?lang=P&url=%2F'>Português</a></li>
+		</ul>
+			<span class='SubscriptionContent'>
+				<form class='form-horizontal' role='form' method='post' action=''>
+					<div class='form-group'>
+						<label class='col-sm-2 control-label'><span style='color: #f00'>*</span>電郵信箱</label>
+						<div class='col-sm-10'><div class='input-group'>
+							<input type='email' class='form-control' id='Email' name='Email'
+							placeholder='必需填寫' value='' required>
+							<span class='glyphicon form-control-feedback' aria-hidden='true'></span>
+							<!--<div class='help-block with-errors'>(閣下填寫的電郵信箱，將用作確認申請及收取訂閱內容之用途)</div>-->
+							<div class='help-block'>(閣下填寫的電郵信箱，將用作確認申請及收取訂閱內容之用途)</div>
+						</div></div>
+					</div>
+					<div class='form-group'>
+						<label class='col-sm-2 control-label'><span style='color: #f00'>*</span>姓</label>
+						<div class='col-sm-4'><div class='input-group'>
+							<input type='text' class='form-control' id='LastName' name='LastName'
+							placeholder='必需填寫' value='' required>
+							<span class='glyphicon form-control-feedback' aria-hidden='true'></span>
+						</div></div>
+						<label class='col-sm-2 control-label'><span style='color: #f00'>*</span>名</label>
+						<div class='col-sm-4'><div class='input-group'>
+							<input type='text' class='form-control' id='FirstName' name='FirstName'
+							placeholder='必需填寫' value='' required>
+							<span class='glyphicon form-control-feedback' aria-hidden='true'></span>
+						</div></div>
+					</div>
+					<div class='form-group'>
+						<label class='col-sm-2 control-label'>機構名稱 (如適用)</label>
+						<div class='col-sm-10'><div class='input-group'>
+							<input type='text' class='form-control' id='Organization' name='Organization'
+							placeholder='' value=''>
+							<span class='glyphicon form-control-feedback' aria-hidden='true'></span>
+						</div></div>
+					</div>
+					<div class='form-group'>
+						<label class='col-sm-2 control-label'><span style='color: #f00'>*</span>工作性質</label>
+						<div class='col-sm-10'><select class='form-control' id='IndustryType' name='IndustryType'>
+							<option name='IndustryTypeNull' value='0'></option>
+														<option value='1'>批發</option>
+														<option value='2'>零售</option>
+														<option value='3'>酒店業場所</option>
+														<option value='4'>餐飲</option>
+														<option value='5'>政府部門</option>
+														<option value='6'>教育及學術</option>
+														<option value='7'>會議展覽</option>
+														<option value='8'>博彩</option>
+														<option value='9'>運輸</option>
+														<option value='10'>旅行社及導遊</option>
+														<option value='11'>其他</option>
+													</select></div>
+						<div style='width:0;height:0;overflow:hidden;'><input type='checkbox' id='IndustryTypeOptionVal' name='IndustryTypeOptionVal' value='' required></div>
+					</div>
+					<div class='form-group'>
+						<label class='col-sm-2 control-label'><span style='color: #f00'>*</span>國家或地區</label>
+						<div class='col-sm-10'><select class='form-control' id='CountryOrRegion' name='CountryOrRegion'>
+							<option name='CountryOrRegionNull' value='0'></option>
+														<option value='C-CN'>中國內地</option>
+														<option value='C-HK'>香港</option>
+														<option value='C-MO'>澳門</option>
+														<option value='C-TW'>台灣</option>
+														<option value='C-PH'>菲律賓</option>
+														<option value='C-IN'>印度</option>
+														<option value='C-ID'>印尼</option>
+														<option value='C-JP'>日本</option>
+														<option value='C-MY'>馬來西亞</option>
+														<option value='C-KR'>韓國</option>
+														<option value='C-SG'>新加坡</option>
+														<option value='C-TH'>泰國</option>
+														<option value='C-VN'>越南</option>
+														<option value='C-BR'>巴西</option>
+														<option value='C-CA'>加拿大</option>
+														<option value='C-US'>美國</option>
+														<option value='C-DE'>德國</option>
+														<option value='C-ES'>西班牙</option>
+														<option value='C-RU'>俄羅斯</option>
+														<option value='C-FR'>法國</option>
+														<option value='C-NL'>荷蘭</option>
+														<option value='C-IT'>意大利</option>
+														<option value='C-PT'>葡萄牙</option>
+														<option value='C-GB'>英國</option>
+														<option value='C-CH'>瑞士</option>
+														<option value='C-AU'>澳洲</option>
+														<option value='C-NZ'>新西蘭</option>
+														<option value='C-ZA'>南非</option>
+														<option value='O-001'>其他</option>
+													</select></div>
+						<div style='width:0;height:0;overflow:hidden;'><input type='checkbox' id='CountryOrRegionOptionVal' name='CountryOrRegionOptionVal' value='' required></div>
+					</div>
+					<div class='form-group'>
+						<label class='col-sm-2 control-label'><span style='color: #f00'>*</span>訂閱語言</label>
+						<div class='col-sm-10'><select class='form-control' id='SubscriptionLanguage' name='SubscriptionLanguage'>
+														<option value='T' selected="selected">繁體中文</option>
+														<option value='S' >簡體中文</option>
+														<option value='E' >英文</option>
+														<option value='P' >葡文</option>
+													</select></div>
+					</div>
+					<div class='form-group'>
+						<label class='col-sm-2 control-label'><span style='color: #f00'>*</span>請選擇需要的訂閱內容(可多選)</label>
+						<div class='col-sm-10'>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='1'> 總入境旅客(互動數據)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='2'> 按客源巿場(互動數據)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='17'> 按留宿 / 不過夜(互動數據)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='3'> 按入境方式(互動數據)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='4'> 旅客平均逗留時間(互動數據)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='5'> 酒店住客平均逗留時間(互動數據)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='14'> 有營業酒店業場所住客數目(互動數據)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='15'> 有營業酒店業場所入住率(互動數據)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='16'> 有營業酒店業場所(互動數據)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='18'> 按個人遊簽注(互動數據)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='19'> 黃金周統計數據(互動數據)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='21'> 澳門區域旅遊數據(旅遊統計報表)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='8'> 市場表現狀況(旅遊統計報表)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='10'> 主要綜合指標(旅遊統計報表)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='9'> 旅遊業概覽(旅遊統計報表)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='11'> 十大客源市場(旅遊統計報表)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='12'> 酒店平均入住率及房價(旅遊統計報表)</label></div>
+														<div><label class='checkbox-inline'><input type='checkbox' name='SelectSubscriptionOption' value='7'> 澳門旅遊業統計報告(旅遊統計報表)</label></div>
+														<div style='width:0;height:0;overflow:hidden;'><input type='checkbox' id='SelectSubscriptionOptionVal' name='SelectSubscriptionOptionVal' value='' required></div>
+							<div style='margin-top:10px;'><button type='button' class='btn btn-info FormSelectAllBtn'>選擇所有</button><button type='button' class='btn btn-warning FormCancelAllBtn' style='margin-left:10px;'>取消所有</button></div>
+						</div>
+					</div>
+					
+					<div><p><label class='checkbox-inline'><input type='checkbox' id='SubscriptionAgreed' required>
+						<span style='color: #f00'>*</span>同意本局的
+						<span><a class='FooterBtn' data-content='TermOfServicesContent' data-nl2br='true' href='#' target='_blank'>使用條款</a></span>
+						<span>|&nbsp;<a class='FooterBtn' data-content='DisclaimerContent' data-nl2br='true' href='#' target='_blank'>私隱聲明</a></span>
+					</label></p></div>
+					
+					<div style='color: #f00;'>* 必需填寫</div>
+					
+					<div class='form-group'><div class='col-sm-12'><button type='submit' class='btn btn-primary'>訂閱</button></div></div>
+				</form>
+			</span>
+	</div>
+	
+	<!-- Srolling Message -->
+	<!--
+	<div class='container srolling-panel'>
+	<div class='row'>
+	<div class='col-xs-12'>
+		<ul class='scrollBox'>
+			<li class='Subscription'><span style='font-size: 15px;'><img src='images/icon-scrolling-new.png'> 新增澳門區域旅遊數據，歡迎透過訂閱定期收取最新資訊。</span></li>
+			<li class='Subscription'><span style='font-size: 15px;'><img src='images/icon-scrolling-new.png'> 新增澳门区域旅游数据，欢迎透过订阅定期收取最新资讯。</span></li>
+			<li class='Subscription'><span style='font-size: 15px;'><img src='images/icon-scrolling-new.png'> New Macao district tourism data, you are welcome to obtain the latest information regularly by subscribing.</span></li>
+			<li class='Subscription'><span style='font-size: 15px;'><img src='images/icon-scrolling-new.png'> Acrescentam-se dados estatísticos sobre turismo por distritos de Macau, subscreva-se para receber periodicamente as informações mais recentes.</span></li>
+		</ul>
+	</div>
+	</div>
+	</div>
+	-->
+	
+	<!-- Block Container -->
+	<div class='container LangT'>
+		<div class='brickWrapper'>
+		<div class='row'>
+			<div class='col-xs-8'>
+				<div class='link-block brick brick-red' data-url='/Indicator/VisitorsSummary'>
+					<div class='icon-block'>
+					<div class='slideTextRight'>
+						<div class='after'>
+							<img src='images/cover-indicatorT.png' >
+						</div>
+						<div class='before'>
+							<img class='icon-img' src='images/icon-people.png'>
+							<h2>互動數據</h2>
+						</div>
+					</div>
+					</div>
+				</div>
+				
+				<!--
+				<div class='link-block brick brick-green' data-url='/Publication/Book'>
+					<div class='icon-block'>
+					<div class='slideTextRight'>
+						<div class='after'>
+							<img src='images/cover-bookT.png' >
+						</div>
+						<div class='before'>
+							<img class='icon-img' src='images/icon-book.png'>
+							<h2>旅遊統計報表</h2>
+						</div>
+					</div>
+					</div>
+				</div>
+				-->
+				<div class='link-block brick brick-green' data-url='/Publication/Book'>
+					<div class='icon-block'>
+						<img class='beforeHover icon-img' src='images/icon-book.png'>
+						<img class='afterHover icon-img' src='images/icon-book-green.png'>
+						<h2>旅遊統計報表</h2>
+					</div>
+				</div>
+			</div>
+			
+			<div class='col-xs-4'>
+				<div class='link-block brick brick-purple' data-url='/Indicator/VisitorsInPlace/WorldMap'>
+					<div class='icon-block heightX2'>
+						<img src='images/icon-travel.png'>
+						<h2>訪澳客源巿場</h2>
+					</div>
+					<div class='slideInFromTop heightX2'>
+						<img src='images/cover-earthT.png'>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class='row'>
+			<div class='col-xs-4'>
+				<div class='link-block brick brick-golden' data-url='/Indicator/GoldWeekVisitor'>
+					<div class='icon-block'>
+						<img class='beforeHover icon-img' src='images/icon-week.png'>
+						<img class='afterHover icon-img' src='images/icon-week-golden.png'>
+						<h2>黃金周統計數據</h2>
+					</div>
+				</div>
+			</div>
+			
+			<div class='col-xs-4'>
+				<div class='link-block brick brick-pink' data-url='/Publication/Other'>
+					<div class='icon-block'>
+						<img class='beforeHover icon-img' src='images/icon-chart-up.png'>
+						<img class='afterHover icon-img' src='images/icon-chart-up-pink.png'>
+						<h2>其他旅遊統計資料</h2>
+					</div>
+				</div>
+			</div>
+	
+			<div class='col-xs-4'>
+				<div class='brick brick-logo' data-url='-'>
+					<div class='icon-block'>
+					<div class='slideTextLeft'>
+						<div class='before'>
+							<img src='images/icon-logo.png' width='380'>
+						</div>
+						<div class='after'>
+							<span class='T'><Font size=large color = "#4d4d54"><b>聯絡我們</b></font><p>地址: 澳門宋玉生廣場335-341號獲多利大廈12樓</p><p>網址 : <a href='http://www.macaotourism.gov.mo' target='_blank'>http://www.macaotourism.gov.mo</a></p><p>電子郵箱: <a href='mailto:mgto@macaotourism.gov.mo'>mgto@macaotourism.gov.mo</a></p><p>電話: +853 2831 5566&nbsp;&nbsp;傳真: +853 2851 0104</p></span>
+						</div>
+					</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+	
+	<div id='Footer' class='container'>
+		<div class='row'>
+			<div class='col-xs-8 bottom-column'>
+				<span><img src='images/icon-logo-xs.png' /></span>
+				<span>
+					<div>
+						<span>&copy; 2024 澳門特別行政區政府旅遊局版權所有</span>
+						<span>|&nbsp;<a class='FooterBtn' data-content='TermOfServicesContent' href='#' target='_blank'>使用條款</a></span>
+						<span>|&nbsp;<a class='FooterBtn' data-content='DisclaimerContent' href='#' target='_blank'>私隱聲明</a></span>
+						<span></span>
+						<span class='TermOfServicesContent'><p>本網站是為公眾容易查詢旅遊統計數據而設立。於本網站內發佈的資料含有由澳門特別行政區政府旅遊局及第三者所提供的內容，該等資料只供公眾作參考用途。</p><p>使用本網站前，使用者需小心閱讀本文件所載的使用條款及免責聲明。使用者一經瀏覽及使用本網站，即代表使用者同意遵守並受該等使用條款及免責聲明約束。</p><h3>1. 著作權</h3><p>除另有聲明外，本網站內所有內容的著作權及其他權利，均屬澳門特別行政區政府旅遊局或資料提供者所有。未經澳門特別行政區政府旅遊局許可，使用者不得翻印、複製、編輯、發佈、傳送、上載或模仿本網站內全部或部份內容，包括所有資料、標誌、圖像、地圖及短片。</p><p>澳門特別行政區政府旅遊局沒有授予使用者任何關於本局之標誌、著作權或其他專利資料的明示或默示的權利。</p><h3>2. 有限許可</h3><p>本網站及其包含的所有內容只供作個人或機構非商業用途。儘管使用者可在不改變以上項目的形式下，下載、儲存於電腦快取記憶、顯示、列印及複製本網站的內容，包括文字及圖像，作個人非商業用途或在使用者的機構內使用，但使用者必須註明澳門特別行政區政府旅遊局為資料來源。使用者不得以任何方式利用該等內容誤導或欺騙任何人。</p><h3>3. 免責聲明</h3><p>澳門特別行政區政府旅遊局已致力確保本網站內的資料準確、完整及包含最新訊息，但對該等資料的準確性或完整性，本局並不作出明示或默示的保證。該等資料有任何錯誤或遺漏，本局不承擔任何責任。任何人如欲使用或參照該等資料前，建議先向澳門特別行政區政府旅遊局或該等資料的相關人士確認其準確性。</p><p>本網站內提述任何事件、產品或服務，並不構成或暗示本局作出任何種類的認可或推薦。</p><h3>4. 網站內容的更改</h3><p>澳門特別行政區政府旅遊局可隨時對本網站所有的內容進行編輯、修改、更新、增添及刪除等，而不會事先作任何的通告。</p><p>使用者有責任定期瀏覽網上發佈的資料，以及時知悉這些更改。更改將會即時生效，上述條款經修改後在網上發佈，如使用者繼續使用本網站，即代表使用者同意接受有關條款。</p><h3>5. 第三者網站連結</h3><p>本網站可能含有超連結、框架或其他參考途徑可通到其他網站。澳門特別行政區政府旅遊局不會查核本網站內超連結所提供的內容，對該等連結網站是否能提供資料，或所提供的資料是否準確、恰當，本局並不作出任何保證。</p><p>至其他網站的連結只為方便參考，並不代表本局對該等連結網站作出認可或批准。如使用者使用或信賴該等連結網站的內容，風險由使用者負責。</p><h3>6. 病毒警告</h3><p>澳門特別行政區政府旅遊局並不保證透過本網站或其他連結網站所下載的檔案並無任何病毒或其他具損壞性的元件，使用者使用本網站所引致的任何財產損失，本局無須負責。</p><h3>7.適用法律及管轄權</h3><p>本使用條款及免責聲明依照中華人民共和國澳門特別行政區法律作解釋及執行。使用者一經使用本網站，即代表使用者同意接受澳門特別行政區法院的專屬性管轄權。</p></span>
+						<span class='DisclaimerContent'><h4>1. 本網站收集的非個人資料及其處理</h4><p>當使用者瀏覽本網站時，澳門特別行政區政府旅遊局（下稱本局）的電腦系統會將使用者的資料記錄下來，包括使用者所在的互聯網域名、IP地址與所在地區、在本網站瀏覽的頁面與瀏覽的日期及時間，以及使用者由其他網站的超連結進入本網站時該網站的域名等。</p><p>一般情況下，本局只會將上述資料作統計的用途。當涉及違反法律之行為（如攻擊本網站）時，基於刑事調查的需要，本局才可能會向執法機關提供所記錄的資料。執法機關可能利用這些資料追查作出不法行為的人士及依法處理。</p><h4>2. 本網站收集的個人資料及其處理</h4><p>當 使用者使用本網站的電子服務時，有可能需要提供個人資料，而所需的個人資料則視乎服務的具體要求而定。本局的工作人員在處理有關資料時，均會遵守澳門特別行政區關於《個人資料保護法》之規定。使用者所提供的個人資料之處理會受到保密措施規範，並得到妥善保存。所收集的個人資料會保存至該等資料無需再用於收集時所作的用途，或到達政府規定的保存期限。屆時該等資料將按有關規定銷毀。</p><h4>3. 個人資料的保護</h4><p>本網站將使用適當的資訊保安技術傳送及儲存使用者於本網站上提交的資料，以確保使用者的個人資料得到一定的保護。</p><p>若使用者向本局發出電子郵件，須注意在公開網絡上傳送資料可能存在一定風險，例如有可能被未經許可的第三者看到、截取和使用。因此，本局建議使用者盡量通過電郵以外的方式提交涉及個人資料的查詢、投訴及申請。</p><h4>4. 對外連結</h4><p>本網站有連結到其他政府部門或機構網站的超連結。這些網站的內容乃由其所屬之機構建立和維護。本網站僅以附加服務的方式向使用者提供這些連結。當通過這些連結進入上述網站時，表示使用者已經離開本網站，因此將不受本網站的私隱條款所規範。這些網站的使用及私隱條款可能有別於本網站，因此建議使用者先了解這些網站的相關條款。本局對這些網站的使用而引致的後果不承擔任何責任或賠償。</p><h4>5. 本聲明的變更</h4><p>本聲明若有任何更新，本局將以新版本取代舊版本發佈，並於文件中列明最後修訂日期，但不作另行公佈。</p></span>
+					</div>
+				</span>
+			</div>
+			<div class='col-xs-4 bottom-column'>
+								<span><a href='/Page/GoldWeekVisitor?lang=T'><img src='images/gold-week_T.png' /></a></span>
+							</div>
+		</div>
+	</div>
+</body>
+
+</html>
