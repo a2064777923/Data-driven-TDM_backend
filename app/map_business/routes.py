@@ -53,6 +53,9 @@ def get_hotel_map_detail():
     hotel_result={"data":{},"success":True}
     hotelName = request.args.get('hotelName')
     hotels_detail = HotelDetailWithPrice.query.filter_by(name = hotelName).first()
+    if hotels_detail == None:
+        hotel_result["success"] = False
+        return jsonify(hotel_result)
     if hotels_detail.details_URL == "nan":
         hotel_result["success"] = False
         return jsonify(hotel_result)
@@ -74,7 +77,7 @@ def get_hotel_map_detail():
                 adjective_data = json.load(file)
             with open('./data/hotel_reviews_noun.json', 'r', encoding='utf-8') as file:
                 noun_data = json.load(file)
-            hotelData = {"hotelDetail":hotelDetail, "hotelReviews":{"hotelName":hotelName,"adjectives":adjective_data[hotelName],"nouns":noun_data[hotelName]}}
+            hotelData = {"hotelDetail":hotelDetail, "hotelReviews":{"hotelName":hotelName,"adjectives":adjective_data[hotelName],"nouns":noun_data[hotelName][0:10]}}
             hotel_result["data"] = hotelData
         except (NotADirectoryError, KeyError) as e:
             print("can't find file")

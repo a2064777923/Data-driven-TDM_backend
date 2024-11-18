@@ -32,6 +32,12 @@ class AverageLengthStayVisitors(db.Model):
     period = db.Column(db.String(64))
     value = db.Column(db.Float)
 
+class EntryAndExit(db.Model):
+    __tablename__ = 'entry_exit'
+    year = db.Column(db.Integer,primary_key = True)
+    placeEN = db.Column(db.String(255))
+    number = db.Column(db.Integer)
+
 class HotelDetailWithPrice(db.Model):
     __tablename__ = 'hotel_details_with_price'
     #id = db.Column(db.Integer,primary_key = True)
@@ -43,6 +49,10 @@ class HotelDetailWithPrice(db.Model):
     review_count = db.Column(db.String(255))
     details_URL = db.Column(db.String(1024))
     prices = db.Column(db.String(1024))
+
+class HotelDetail(db.Model):
+    __tablename__ = 'hotel_detail'
+    id = db.Column(db.Integer,primary_key = True)
 
 class HotelHistoryPrice(db.Model):
     __tablename__ = 'macau_hotel_price_history'

@@ -1,9 +1,11 @@
 import random
 
 from flask import jsonify
+from sqlalchemy import func
+
 from app import db
 from app.tourist_overview import tourist_bp
-from app.models import MainlandTourist, AverageLengthStayVisitors
+from app.models import MainlandTourist, AverageLengthStayVisitors, EntryAndExit
 import numpy as np
 from collections import defaultdict
 
@@ -144,25 +146,51 @@ def get_Enter_Exit_Mock():
     # 定义年份范围
     years = range(2019, 2025)
 
-    # 生成模拟数据
+    # 查询数据库并汇总数据
+    results = (
+        db.session.query(
+            EntryAndExit.year,
+            EntryAndExit.placeEN,
+            func.sum(EntryAndExit.number).label('total_number')
+        )
+        .filter(EntryAndExit.year.in_(years))
+        .group_by(EntryAndExit.year, EntryAndExit.placeEN)
+        .all()
+    )
+
+    # 初始化数据存储结构
     data = {}
-    for year in years:
-        year_data = []
-        total_people = random.randint(1000000, 5000000)  # 总人数
-        remaining_percentage = 100.0  # 剩余百分比
-        for i, checkpoint in enumerate(checkpoints):
-            if i == len(checkpoints) - 1:
-                percentage = remaining_percentage  # 最后一个口岸占据剩余的百分比
-            else:
-                percentage = random.uniform(5, remaining_percentage - (len(checkpoints) - i - 1) * 5)
-                remaining_percentage -= percentage
-            people_count = int(total_people * (percentage / 100))
-            year_data.append({checkpoint : {
-                "出入境人數": people_count,
-                "在當年總人數中所佔百分比": str(round(percentage, 2))
-                }}
-            )
-        data[str(year)] = year_data
+    for year, placeEN, total_number in results:
+        if str(year) not in data:
+            data[str(year)] = {'total': 0, 'entries': []}  # 存储总人数和每个口岸的条目
+
+        # 更新年总人数
+        data[str(year)]['total'] += total_number
+
+        # 检查口岸是否已经在该年份的数据中存在
+        existing_entry = next((item for item in data[str(year)]['entries'] if placeEN in item), None)
+
+        if existing_entry:
+            # 如果已存在，则将出入境人数合并
+            existing_entry[placeEN]['出入境人數'] += total_number
+        else:
+            # 否则，添加新条目
+            data[str(year)]['entries'].append({
+                placeEN: {
+                    "出入境人數": total_number,
+                    "在當年總人數中所佔百分比": 0  # 占比，待后续计算
+                }
+            })
+
+    # 计算百分比
+    for year in data:
+        total_population = data[year]['total']
+        for entry in data[year]['entries']:
+            for place, info in entry.items():
+                info['在當年總人數中所佔百分比'] = round((info['出入境人數'] / total_population) * 100, 2)
+
+        # 清理数据结构，移除总人数信息
+        data[year] = data[year]['entries']
 
     # 包装结果为JSON格式
     result = {
