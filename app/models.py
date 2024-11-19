@@ -3,10 +3,11 @@ from app import db
 
 class Hotel(db.Model):
     __tablename__ = 'hotel_detail'
-
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128))
+
+    name_en = db.Column(db.String(255))
     classname_en = db.Column(db.String(50))
+
 
 class MainlandTourist(db.Model):
     __tablename__ = 'mainland_visitor_distribute_stats'
@@ -50,9 +51,6 @@ class HotelDetailWithPrice(db.Model):
     details_URL = db.Column(db.String(1024))
     prices = db.Column(db.String(1024))
 
-class HotelDetail(db.Model):
-    __tablename__ = 'hotel_detail'
-    id = db.Column(db.Integer,primary_key = True)
 
 class HotelHistoryPrice(db.Model):
     __tablename__ = 'macau_hotel_price_history'
